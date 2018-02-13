@@ -61,3 +61,14 @@ which.max(sum2017)
 #The three months period with the most apprehension of 2017 is October,
 #November, and December, with the sum 136646.
 #The sum of 2010 is bigger than the sum of 2017
+
+library(readr)
+
+ts1 <- read_csv("~/Desktop/PB monthly summaries (1).csv", col_names = FALSE)
+
+ts2 <- as.vector(t(ts1))
+
+ts3 <- ts(ts2, start = c(2000,10), frequency=12)
+
+ts.plot(ts3, gpars=list(xlab="year", ylab="Apprehensions", lty=c(1:3)))
+
