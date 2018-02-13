@@ -1,6 +1,6 @@
 A2010 <- read.csv("BP Apprehensions 2010.csv", header = TRUE, stringsAsFactors = FALSE)
 A2017 <- read.csv("PB Apprehensions 2017.csv", header = TRUE, stringsAsFactors = FALSE)
-par(mfrow=c(2,2))
+#par(mfrow=c(2,2))
 
 barplot(A2010[1:9,13], 
         names.arg = rownames(A2010)[1:9], 
@@ -34,40 +34,19 @@ barplot(as.matrix(yearAB), beside = TRUE, col = c("red", "blue"), bty="n" )
 
 legend("topleft", c("year2010","year2017"), pch=15,  col=c("red","blue"),  bty="n")
 
+#Compare by month
+yearA1 <- as.data.frame(matrix(c(colSums(A2010[,-1])),nrow = 1))
 
-rownames(A2010) <- A2010[,1]
-A2010[,1]
+colnames(yearA1) <- c(1:12)
 
-### outcome 1
-A2010 <-  subset(A2010, select= -c(Sector))
-rownames(A2010)
+yearB1<- as.data.frame(matrix(c(colSums(A2017[,-1])),nrow = 1))
 
-A2010 <- rbind(A2010, colSums(A2010))
+colnames(yearB1) <- c(1:12)
 
-rownames(A2010)
+yearAB1 <- rbind(yearA1, yearB1)
 
--length(rownames(A2010))  
+row.names(yearAB1) <- c("year2010", "year2017")
 
-rownames(A2010) <- c(rownames(A2010)[-length(rownames(A2010))], "Total")
+barplot(as.matrix(yearAB1), beside = TRUE, col = c("red", "blue"), bty="n" )
 
-A2010 <- cbind(A2010,rowSums(A2010))
-
-colnames(A2010) <- c(colnames(A2010)[-length(colnames(A2010))], "Total")
-
-View(A2010)
-
-
-
-
-
-#see barplot()?
-barplot(A2010[1:9,13], names.arg = rownames(A2010)[1:9])
-
-#drill down in barplot doc
-barplot(A2010[1:9,13], 
-        names.arg = rownames(A2010)[1:9], 
-        las=2,
-        axisnames=TRUE,
-        main="2010 Border Patrol Apprehensions by Sector",
-        border="blue",
-        col="yellow")
+legend("topleft", c("year2010","year2017"), pch=15,  col=c("red","blue"),  bty="n")
