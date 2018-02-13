@@ -1,4 +1,5 @@
 library(ISwR)
+library(TTR)
 
 A2010 <- read.csv("BP Apprehensions 2010.csv", header = TRUE, stringsAsFactors = FALSE)
 A2017 <- read.csv("PB Apprehensions 2017.csv", header = TRUE, stringsAsFactors = FALSE)
@@ -24,11 +25,11 @@ legend("topleft", c("year2010","year2017"), pch=15,  col=c("red","blue"),  bty="
 #Compare by month
 yearA1 <- as.data.frame(matrix(c(colSums(A2010[,-1])),nrow = 1))
 
-colnames(yearA1) <- c(1:12)
+colnames(yearA1) <- c(10:12,1:9)
 
 yearB1<- as.data.frame(matrix(c(colSums(A2017[,-1])),nrow = 1))
 
-colnames(yearB1) <- c(1:12)
+colnames(yearB1) <- c(10:12,1:9)
 
 yearAB1 <- rbind(yearA1, yearB1)
 
@@ -41,9 +42,22 @@ legend("topleft", c("year2010","year2017"), pch=15,  col=c("red","blue"),  bty="
 #t.test
 a<-as.numeric(which.max(yearA))
 b<-as.numeric(which.max(yearB))
-t.test(as.numeric(A2010[,-1]), as.numeric(A2017[b,-1]), paired = TRUE)
+t.test(as.numeric(A2010[a,-1]), as.numeric(A2017[b,-1]), paired = TRUE)
 
 #Assume 95% confidence level, the p-value 0.1061 is bigger than 0.05,
 #So, we do not reject H0 which states there is no change in the means
 # of the most apprehension sectors of 2010 and 2017. In conclusion, we
 # are 95% confident to say that there is a change between two means.
+
+sum2010 <- runSum(as.numeric(yearA1),n = 3, cumulative = FALSE)
+sum2017 <- runSum(as.numeric(yearB1),n = 3, cumulative = FALSE)
+max(sum2010,na.rm = T)
+max(sum2017,na.rm = T)
+which.max(sum2010)
+which.max(sum2017)
+
+#The three months period with the most apprehension of 2010 is March,
+#April, and May, with the sum 163643. 
+#The three months period with the most apprehension of 2017 is October,
+#November, and December, with the sum 136646.
+#The sum of 2010 is bigger than the sum of 2017
