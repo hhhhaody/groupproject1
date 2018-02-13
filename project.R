@@ -2,22 +2,7 @@ A2010 <- read.csv("BP Apprehensions 2010.csv", header = TRUE, stringsAsFactors =
 A2017 <- read.csv("PB Apprehensions 2017.csv", header = TRUE, stringsAsFactors = FALSE)
 #par(mfrow=c(2,2))
 
-barplot(A2010[1:9,13], 
-        names.arg = rownames(A2010)[1:9], 
-        las=2,
-        axisnames=TRUE,
-        main="2010 Border Patrol Apprehensions by Sector",
-        border="blue",
-        col="yellow")
-
-barplot(A2017[1:9,13], 
-        names.arg = rownames(A2017)[1:9], 
-        las=2,
-        axisnames=TRUE,
-        main="2017 Border Patrol Apprehensions by Sector",
-        border="blue",
-        col="yellow")
-
+# Compare by sector
 yearA <- as.data.frame(matrix(c(rowSums(A2010[,-1])),nrow = 1))
 
 colnames(yearA) <- A2010[,1]
