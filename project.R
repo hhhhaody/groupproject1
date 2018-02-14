@@ -56,15 +56,25 @@ max(sum2010,na.rm = T)
 max(sum2017,na.rm = T)
 which.max(sum2010)
 which.max(sum2017)
-
 #The three months period with the most apprehension of 2010 is March,
 #April, and May, with the sum 163643. 
 #The three months period with the most apprehension of 2017 is October,
 #November, and December, with the sum 136646.
 #The sum of 2010 is bigger than the sum of 2017
 
+#Use t test to compare the sums of March, April, and May in 2010 and 
+#the sums of  October, November, and December in 2017 
+#t test
+yearA2<-yearA1[(which.max(sum2010)-2):which.max(sum2010)]
+yearB2<-yearB1[(which.max(sum2017)-2):which.max(sum2017)]
+t.test(as.numeric(yearA2),as.numeric(yearB2), paired = FALSE)
+#Assuming 95% confidence level, the p-value is 0.1541 is bigger than 0.05,
+#So we do not reject H0 which states there is no change in the sums of three monthe
+#with the most apprehension of 2010 and 2017. In conclusion, we are 95% confident
+#to say that there is a change between two group of sums. 
 
 
+#time series
 ts1 <- read_csv("NEW PB monthly summaries.csv", col_names = FALSE)
 
 ts2 <- as.vector(t(ts1))
@@ -72,4 +82,6 @@ ts2 <- as.vector(t(ts1))
 ts3 <- ts(ts2, start = c(2000,10), frequency=12)
 
 ts.plot(ts3, gpars=list(xlab="year", ylab="Apprehensions", lty=c(1:3)))
+
+
 
