@@ -43,9 +43,9 @@ legend("topleft", c("year2010","year2017"), pch=15,  col=c("red","blue"),  bty="
 #t.test
 a<-as.numeric(which.max(yearA))
 b<-as.numeric(which.max(yearB))
-t.test(as.numeric(A2010[a,-1]), as.numeric(A2017[b,-1]), paired = TRUE)
+t.test(as.numeric(A2010[a,-1]), as.numeric(A2017[b,-1]), paired = FALSE)
 
-#Assume 95% confidence level, the p-value 0.1061 is bigger than 0.05,
+#Assume 95% confidence level, the p-value 0.06346 is bigger than 0.05,
 #So, we do not reject H0 which states there is no change in the means
 # of the most apprehension sectors of 2010 and 2017. In conclusion, we
 # are 95% confident to say that there is a change between two means.
@@ -78,6 +78,7 @@ t.test(as.numeric(yearA2),as.numeric(yearB2), paired = FALSE)
 ts1 <- read_csv("NEW PB monthly summaries.csv", col_names = FALSE)
 
 ts2 <- as.vector(t(ts1))
+ts2 <- rev(ts2)
 
 ts3 <- ts(ts2, start = c(2000,10), frequency=12)
 
