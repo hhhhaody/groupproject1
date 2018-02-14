@@ -55,13 +55,14 @@ legend("topleft", c("year2010","year2017"), pch=15,  col=c("red","blue"),  bty="
 #t.test
 a<-as.numeric(which.max(yearA))
 b<-as.numeric(which.max(yearB))
-t.test(as.numeric(A2010[a,-1]), as.numeric(A2017[b,-1]), paired = TRUE)
-
-#Assume 95% confidence level, the p-value 0.1061 is bigger than 0.05,
+t.test(as.numeric(A2010[a,-1]), as.numeric(A2017[b,-1]), paired = FALSE)
+#Assume 95% confidence level, the p-value 0.06346 is bigger than 0.05,
 #So, we do not reject H0 which states there is no change in the means
 # of the most apprehension sectors of 2010 and 2017. In conclusion, we
 # are 95% confident to say that there is a change between two means.
 
+
+#Find the three months with most apprehension of 2010 and 2017
 sum2010 <- runSum(as.numeric(yearA1),n = 3, cumulative = FALSE)
 sum2017 <- runSum(as.numeric(yearB1),n = 3, cumulative = FALSE)
 max(sum2010,na.rm = T)
@@ -76,7 +77,7 @@ which.max(sum2017)
 #The sum of 2010 is bigger than the sum of 2017
 
 
-
+#Time series
 ts1 <- read_csv("NEW PB monthly summaries.csv", col_names = FALSE)
 
 ts2 <- as.vector(t(ts1))
