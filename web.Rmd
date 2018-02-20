@@ -7,54 +7,167 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
+```{r}
+library(ISwR)
+library(TTR)
+library(readr)
 
-```{r echo=FALSE, message=FALSE}
-source('project.R')
+A2010 <- read.csv("BP Apprehensions 2010.csv", header = TRUE, stringsAsFactors = FALSE)
+A2017 <- read.csv("PB Apprehensions 2017.csv", header = TRUE, stringsAsFactors = FALSE)
+yearA <- as.data.frame(matrix(c(rowSums(A2010[,-1])),nrow = 1))
+colnames(yearA) <- A2010[,1]
+yearB<- as.data.frame(matrix(c(rowSums(A2017[,-1])),nrow = 1))
+colnames(yearB) <- A2010[,1]
+yearAB <- rbind(yearA, yearB)
+row.names(yearAB) <- c("year2010", "year2017")
+
+
+
+#Compare by month
+yearA1 <- as.data.frame(matrix(c(colSums(A2010[,-1])),nrow = 1))
+
+colnames(yearA1) <- c(10:12,1:9)
+
+yearB1<- as.data.frame(matrix(c(colSums(A2017[,-1])),nrow = 1))
+
+colnames(yearB1) <- c(10:12,1:9)
+
+yearAB1 <- rbind(yearA1, yearB1)
+
+row.names(yearAB1) <- c("year2010", "year2017")
 ```
-This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
 
-To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
 
-## Inputs and Outputs
 
-You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
+```{r}
+library(shiny)
 
-```{r eruptions, echo=FALSE}
-inputPanel(
-  selectInput("n_breaks", label = "Number of bins:",
-              choices = c(10, 20, 35, 50), selected = 20),
-  
-  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
-              min = 0.2, max = 2, value = 1, step = 0.2)
-)
+# Define UI for dataset viewer app ----
+ui <- fluidPage(
 
-renderPlot({
-  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
-       xlab = "Duration (minutes)", main = "Geyser eruption duration")
-  
-  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
-  lines(dens, col = "blue")
-})
-```
+  # App title ----
+  titlePanel("Group project"),
 
-## Embedded Application
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
 
-It's also possible to embed an entire Shiny application within an R Markdown document using the `shinyAppDir` function. This example embeds a Shiny application located in another directory:
+    # Sidebar panel for inputs ----
+    sidebarPanel(
 
-```{r tabsets, echo=FALSE}
-shinyAppDir(
-  system.file("examples/06_tabsets", package = "shiny"),
-  options = list(
-    width = "100%", height = 550
+      # Input: Select a dataset ----
+      selectInput("dataset", "Choose a graph to view:",
+                  choices = c("By sector", "By month", "Time series")),
+    
+      actionButton("update", "Update View")
+
+
+    ),
+
+    # Main panel for displaying outputs ----
+    mainPanel(
+
+      h4("Graph"),
+      plotOutput("graph")
+      
+    )
+
   )
 )
+
+# Define server logic to summarize and view selected dataset ----
+server <- function(input, output) {
+
+  # Return the requested dataset ----
+  # Note that we use eventReactive() here, which depends on
+  # input$update (the action button), so that the output is only
+  # updated when the user clicks the button
+  datasetInput <- eventReactive(input$update, {
+    switch(input$dataset,
+           "By sector" = "sector",
+           "By month" = "month",
+           "Time series" = "ts")
+  }, ignoreNULL = FALSE)
+
+  testInput <- eventReactive(input$update, {
+    switch(input$test,
+           "T-test1" = "1",
+           "T-test2" = "2",
+           "Three months compare" = "3")
+  }, ignoreNULL = FALSE)
+  
+  
+  output$graph <- renderPlot({
+    choice <- datasetInput()
+    if (choice == "sector"){
+      barplot(as.matrix(yearAB), beside = TRUE, col = c("red", "blue"), bty="n" )
+
+legend("topleft", c("year2010","year2017"), pch=15,  col=c("red","blue"),  bty="n")
+
+    }
+    if (choice == "month"){
+         barplot(as.matrix(yearAB1), beside = TRUE, col = c("red", "blue"), bty="n" )
+
+legend("topleft", c("year2010","year2017"), pch=15,  col=c("red","blue"),  bty="n")
+    }
+    if (choice == "ts"){
+ts1 <- read_csv("NEW PB monthly summaries.csv", col_names = FALSE)
+ts2 <- as.vector(t(ts1))
+ts2 <- rev(ts2)
+ts3 <- ts(ts2, start = c(2000,10), frequency=12)
+x <- 2000.5
+y <- rev(rowMeans(ts1))
+          ts.plot(ts3, gpars=list(xlab="year", ylab="Apprehensions", lty=1))
+for(i in 1:18){
+    segments(x,y[i],x+1,y[i],col = 'red')
+    text(x+1.5,y[i],as.character(x-.5),col = 'red',cex = 0.5)
+    x <- x+1
+}
+    }
+  })
+}
+
+# Create Shiny app ----
+shinyApp(ui, server)
 ```
 
-Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
+##T-test 1
+```{r}
+a<-as.numeric(which.max(yearA))
+b<-as.numeric(which.max(yearB))
+t.test(as.numeric(A2010[a,-1]), as.numeric(A2017[b,-1]), paired = FALSE)
+```
 
-You can also use the `shinyApp` function to define an application inline rather then in an external directory.
+Assume 95% confidence level, the p-value 0.06346 is bigger than 0.05,
+So, we do not reject H0 which states there is no change in the means
+of the most apprehension sectors of 2010 and 2017. In conclusion, we
+are 95% confident to say that there is a change between two means.
 
-In all of R code chunks above the `echo = FALSE` attribute is used. This is to prevent the R code within the chunk from rendering in the document alongside the Shiny components.
 
+##Find the three months with most apprehension of 2010 and 2017
+```{r}
+sum2010 <- runSum(as.numeric(yearA1),n = 3, cumulative = FALSE)
+sum2017 <- runSum(as.numeric(yearB1),n = 3, cumulative = FALSE)
+max(sum2010,na.rm = T)
+max(sum2017,na.rm = T)
+which.max(sum2010)
+which.max(sum2017)
+```
+
+
+
+The three months period with the most apprehension of 2010 is March,April, and May, with the sum 163643. 
+The three months period with the most apprehension of 2017 is October,November, and December, with the sum 136646.
+The sum of 2010 is bigger than the sum of 2017
+
+
+##T-test 2
+```{r}
+
+yearA2<-yearA1[(which.max(sum2010)-2):which.max(sum2010)]
+yearB2<-yearB1[(which.max(sum2017)-2):which.max(sum2017)]
+t.test(as.numeric(yearA2),as.numeric(yearB2), paired = FALSE)
+```
+
+Assuming 95% confidence level, the p-value is 0.1541 is bigger than 0.05, So we do not reject H0 which states there is no change in the sums of three months with the most apprehension of 2010 and 2017. In conclusion, we are 95% confident to say that there is a change between two group of sums. 
 
 

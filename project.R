@@ -87,7 +87,12 @@ ts2 <- rev(ts2)
 
 ts3 <- ts(ts2, start = c(2000,10), frequency=12)
 
-ts.plot(ts3, gpars=list(xlab="year", ylab="Apprehensions", lty=c(1:3)))
-
-
+ts.plot(ts3, gpars=list(xlab="year", ylab="Apprehensions", lty=1))
+x <- 2000.5
+y <- rev(rowMeans(ts1))
+for(i in 1:18){
+    segments(x,y[i],x+1,y[i],col = 'red')
+    text(x+1.5,y[i],as.character(x-.5),col = 'red',cex = 0.5)
+    x <- x+1
+}
 
